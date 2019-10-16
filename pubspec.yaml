@@ -1,6 +1,6 @@
-name: angel_opinionated
+name: angel_halo
 version: 0.0.0
-description: Opinionated configurations and presets on top of the Angel framework.
+description: Opinionated framework, configurations, and presets on top of Angel.
 homepage: https://github/angel-dart/opinionated
 environment:
   sdk: ">=2.0.0 <3.0.0"
