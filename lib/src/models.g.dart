@@ -86,7 +86,7 @@ class OAuth2ApplicationMigration extends Migration {
   }
 }
 
-class OAuthScopeMigration extends Migration {
+class OAuth2ScopeMigration extends Migration {
   @override
   up(Schema schema) {
     schema.create('oauth2_scopes', (table) {
@@ -103,7 +103,7 @@ class OAuthScopeMigration extends Migration {
   }
 }
 
-class OAuthApplicationScopeMigration extends Migration {
+class OAuth2ApplicationScopeMigration extends Migration {
   @override
   up(Schema schema) {
     schema.create('oauth2_application_scopes', (table) {
@@ -123,7 +123,7 @@ class OAuthApplicationScopeMigration extends Migration {
   }
 }
 
-class OAuthTokenMigration extends Migration {
+class OAuth2TokenMigration extends Migration {
   @override
   up(Schema schema) {
     schema.create('oauth2_tokens', (table) {
@@ -663,7 +663,7 @@ class OAuth2ApplicationQuery
     trampoline.add(tableName);
     _where = OAuth2ApplicationQueryWhere(this);
     leftJoin(
-        '(SELECT o_auth_application_scopes.o_auth2_application_id, oauth2_scopes.id, oauth2_scopes.created_at, oauth2_scopes.updated_at, oauth2_scopes.name FROM oauth2_scopes LEFT JOIN o_auth_application_scopes ON o_auth_application_scopes.scope_id=oauth2_scopes.id)',
+        '(SELECT o_auth2_application_scopes.o_auth2_application_id, oauth2_scopes.id, oauth2_scopes.created_at, oauth2_scopes.updated_at, oauth2_scopes.name FROM oauth2_scopes LEFT JOIN o_auth2_application_scopes ON o_auth2_application_scopes.scope_id=oauth2_scopes.id)',
         'id',
         'o_auth2_application_id',
         additionalFields: const ['id', 'created_at', 'updated_at', 'name'],
@@ -720,7 +720,7 @@ class OAuth2ApplicationQuery
         hashedSecretKey: (row[6] as String));
     if (row.length > 7) {
       model = model.copyWith(
-          scopes: [OAuthScopeQuery.parseRow(row.skip(7).take(4).toList())]
+          scopes: [OAuth2ScopeQuery.parseRow(row.skip(7).take(4).toList())]
               .where((x) => x != null)
               .toList());
     }
@@ -735,7 +735,7 @@ class OAuth2ApplicationQuery
   @override
   bool canCompile(trampoline) {
     return (!(trampoline.contains('oauth2_applications') &&
-        trampoline.contains('o_auth_application_scopes')));
+        trampoline.contains('o_auth2_application_scopes')));
   }
 
   @override
@@ -750,7 +750,7 @@ class OAuth2ApplicationQuery
           var l = out[idx];
           return out
             ..[idx] = l.copyWith(
-                scopes: List<_OAuthScope>.from(l.scopes ?? [])
+                scopes: List<_OAuth2Scope>.from(l.scopes ?? [])
                   ..addAll(model.scopes ?? []));
         }
       });
@@ -769,7 +769,7 @@ class OAuth2ApplicationQuery
           var l = out[idx];
           return out
             ..[idx] = l.copyWith(
-                scopes: List<_OAuthScope>.from(l.scopes ?? [])
+                scopes: List<_OAuth2Scope>.from(l.scopes ?? [])
                   ..addAll(model.scopes ?? []));
         }
       });
@@ -788,7 +788,7 @@ class OAuth2ApplicationQuery
           var l = out[idx];
           return out
             ..[idx] = l.copyWith(
-                scopes: List<_OAuthScope>.from(l.scopes ?? [])
+                scopes: List<_OAuth2Scope>.from(l.scopes ?? [])
                   ..addAll(model.scopes ?? []));
         }
       });
@@ -878,18 +878,18 @@ class OAuth2ApplicationQueryValues extends MapQueryValues {
   }
 }
 
-class OAuthScopeQuery extends Query<OAuthScope, OAuthScopeQueryWhere> {
-  OAuthScopeQuery({Query parent, Set<String> trampoline})
+class OAuth2ScopeQuery extends Query<OAuth2Scope, OAuth2ScopeQueryWhere> {
+  OAuth2ScopeQuery({Query parent, Set<String> trampoline})
       : super(parent: parent) {
     trampoline ??= Set();
     trampoline.add(tableName);
-    _where = OAuthScopeQueryWhere(this);
+    _where = OAuth2ScopeQueryWhere(this);
   }
 
   @override
-  final OAuthScopeQueryValues values = OAuthScopeQueryValues();
+  final OAuth2ScopeQueryValues values = OAuth2ScopeQueryValues();
 
-  OAuthScopeQueryWhere _where;
+  OAuth2ScopeQueryWhere _where;
 
   @override
   get casts {
@@ -907,18 +907,18 @@ class OAuthScopeQuery extends Query<OAuthScope, OAuthScopeQueryWhere> {
   }
 
   @override
-  OAuthScopeQueryWhere get where {
+  OAuth2ScopeQueryWhere get where {
     return _where;
   }
 
   @override
-  OAuthScopeQueryWhere newWhereClause() {
-    return OAuthScopeQueryWhere(this);
+  OAuth2ScopeQueryWhere newWhereClause() {
+    return OAuth2ScopeQueryWhere(this);
   }
 
-  static OAuthScope parseRow(List row) {
+  static OAuth2Scope parseRow(List row) {
     if (row.every((x) => x == null)) return null;
-    var model = OAuthScope(
+    var model = OAuth2Scope(
         id: row[0].toString(),
         createdAt: (row[1] as DateTime),
         updatedAt: (row[2] as DateTime),
@@ -932,8 +932,8 @@ class OAuthScopeQuery extends Query<OAuthScope, OAuthScopeQueryWhere> {
   }
 }
 
-class OAuthScopeQueryWhere extends QueryWhere {
-  OAuthScopeQueryWhere(OAuthScopeQuery query)
+class OAuth2ScopeQueryWhere extends QueryWhere {
+  OAuth2ScopeQueryWhere(OAuth2ScopeQuery query)
       : id = NumericSqlExpressionBuilder<int>(query, 'id'),
         createdAt = DateTimeSqlExpressionBuilder(query, 'created_at'),
         updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at'),
@@ -953,7 +953,7 @@ class OAuthScopeQueryWhere extends QueryWhere {
   }
 }
 
-class OAuthScopeQueryValues extends MapQueryValues {
+class OAuth2ScopeQueryValues extends MapQueryValues {
   @override
   get casts {
     return {};
@@ -979,33 +979,33 @@ class OAuthScopeQueryValues extends MapQueryValues {
   }
 
   set name(String value) => values['name'] = value;
-  void copyFrom(OAuthScope model) {
+  void copyFrom(OAuth2Scope model) {
     createdAt = model.createdAt;
     updatedAt = model.updatedAt;
     name = model.name;
   }
 }
 
-class OAuthApplicationScopeQuery
-    extends Query<OAuthApplicationScope, OAuthApplicationScopeQueryWhere> {
-  OAuthApplicationScopeQuery({Query parent, Set<String> trampoline})
+class OAuth2ApplicationScopeQuery
+    extends Query<OAuth2ApplicationScope, OAuth2ApplicationScopeQueryWhere> {
+  OAuth2ApplicationScopeQuery({Query parent, Set<String> trampoline})
       : super(parent: parent) {
     trampoline ??= Set();
     trampoline.add(tableName);
-    _where = OAuthApplicationScopeQueryWhere(this);
-    leftJoin(_scope = OAuthScopeQuery(trampoline: trampoline, parent: this),
+    _where = OAuth2ApplicationScopeQueryWhere(this);
+    leftJoin(_scope = OAuth2ScopeQuery(trampoline: trampoline, parent: this),
         'scope_id', 'id',
         additionalFields: const ['id', 'created_at', 'updated_at', 'name'],
         trampoline: trampoline);
   }
 
   @override
-  final OAuthApplicationScopeQueryValues values =
-      OAuthApplicationScopeQueryValues();
+  final OAuth2ApplicationScopeQueryValues values =
+      OAuth2ApplicationScopeQueryValues();
 
-  OAuthApplicationScopeQueryWhere _where;
+  OAuth2ApplicationScopeQueryWhere _where;
 
-  OAuthScopeQuery _scope;
+  OAuth2ScopeQuery _scope;
 
   @override
   get casts {
@@ -1029,25 +1029,25 @@ class OAuthApplicationScopeQuery
   }
 
   @override
-  OAuthApplicationScopeQueryWhere get where {
+  OAuth2ApplicationScopeQueryWhere get where {
     return _where;
   }
 
   @override
-  OAuthApplicationScopeQueryWhere newWhereClause() {
-    return OAuthApplicationScopeQueryWhere(this);
+  OAuth2ApplicationScopeQueryWhere newWhereClause() {
+    return OAuth2ApplicationScopeQueryWhere(this);
   }
 
-  static OAuthApplicationScope parseRow(List row) {
+  static OAuth2ApplicationScope parseRow(List row) {
     if (row.every((x) => x == null)) return null;
-    var model = OAuthApplicationScope(
+    var model = OAuth2ApplicationScope(
         id: row[0].toString(),
         createdAt: (row[1] as DateTime),
         updatedAt: (row[2] as DateTime),
         applicationId: (row[3] as int));
     if (row.length > 5) {
       model = model.copyWith(
-          scope: OAuthScopeQuery.parseRow(row.skip(5).take(4).toList()));
+          scope: OAuth2ScopeQuery.parseRow(row.skip(5).take(4).toList()));
     }
     return model;
   }
@@ -1057,13 +1057,13 @@ class OAuthApplicationScopeQuery
     return parseRow(row);
   }
 
-  OAuthScopeQuery get scope {
+  OAuth2ScopeQuery get scope {
     return _scope;
   }
 }
 
-class OAuthApplicationScopeQueryWhere extends QueryWhere {
-  OAuthApplicationScopeQueryWhere(OAuthApplicationScopeQuery query)
+class OAuth2ApplicationScopeQueryWhere extends QueryWhere {
+  OAuth2ApplicationScopeQueryWhere(OAuth2ApplicationScopeQuery query)
       : id = NumericSqlExpressionBuilder<int>(query, 'id'),
         createdAt = DateTimeSqlExpressionBuilder(query, 'created_at'),
         updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at'),
@@ -1087,7 +1087,7 @@ class OAuthApplicationScopeQueryWhere extends QueryWhere {
   }
 }
 
-class OAuthApplicationScopeQueryValues extends MapQueryValues {
+class OAuth2ApplicationScopeQueryValues extends MapQueryValues {
   @override
   get casts {
     return {};
@@ -1118,7 +1118,7 @@ class OAuthApplicationScopeQueryValues extends MapQueryValues {
   }
 
   set scopeId(int value) => values['scope_id'] = value;
-  void copyFrom(OAuthApplicationScope model) {
+  void copyFrom(OAuth2ApplicationScope model) {
     createdAt = model.createdAt;
     updatedAt = model.updatedAt;
     applicationId = model.applicationId;
@@ -1128,12 +1128,12 @@ class OAuthApplicationScopeQueryValues extends MapQueryValues {
   }
 }
 
-class OAuthTokenQuery extends Query<OAuthToken, OAuthTokenQueryWhere> {
-  OAuthTokenQuery({Query parent, Set<String> trampoline})
+class OAuth2TokenQuery extends Query<OAuth2Token, OAuth2TokenQueryWhere> {
+  OAuth2TokenQuery({Query parent, Set<String> trampoline})
       : super(parent: parent) {
     trampoline ??= Set();
     trampoline.add(tableName);
-    _where = OAuthTokenQueryWhere(this);
+    _where = OAuth2TokenQueryWhere(this);
     leftJoin(
         _application =
             OAuth2ApplicationQuery(trampoline: trampoline, parent: this),
@@ -1167,9 +1167,9 @@ class OAuthTokenQuery extends Query<OAuthToken, OAuthTokenQueryWhere> {
   }
 
   @override
-  final OAuthTokenQueryValues values = OAuthTokenQueryValues();
+  final OAuth2TokenQueryValues values = OAuth2TokenQueryValues();
 
-  OAuthTokenQueryWhere _where;
+  OAuth2TokenQueryWhere _where;
 
   OAuth2ApplicationQuery _application;
 
@@ -1197,18 +1197,18 @@ class OAuthTokenQuery extends Query<OAuthToken, OAuthTokenQueryWhere> {
   }
 
   @override
-  OAuthTokenQueryWhere get where {
+  OAuth2TokenQueryWhere get where {
     return _where;
   }
 
   @override
-  OAuthTokenQueryWhere newWhereClause() {
-    return OAuthTokenQueryWhere(this);
+  OAuth2TokenQueryWhere newWhereClause() {
+    return OAuth2TokenQueryWhere(this);
   }
 
-  static OAuthToken parseRow(List row) {
+  static OAuth2Token parseRow(List row) {
     if (row.every((x) => x == null)) return null;
-    var model = OAuthToken(
+    var model = OAuth2Token(
         id: row[0].toString(),
         createdAt: (row[1] as DateTime),
         updatedAt: (row[2] as DateTime));
@@ -1238,8 +1238,8 @@ class OAuthTokenQuery extends Query<OAuthToken, OAuthTokenQueryWhere> {
   }
 }
 
-class OAuthTokenQueryWhere extends QueryWhere {
-  OAuthTokenQueryWhere(OAuthTokenQuery query)
+class OAuth2TokenQueryWhere extends QueryWhere {
+  OAuth2TokenQueryWhere(OAuth2TokenQuery query)
       : id = NumericSqlExpressionBuilder<int>(query, 'id'),
         createdAt = DateTimeSqlExpressionBuilder(query, 'created_at'),
         updatedAt = DateTimeSqlExpressionBuilder(query, 'updated_at'),
@@ -1263,7 +1263,7 @@ class OAuthTokenQueryWhere extends QueryWhere {
   }
 }
 
-class OAuthTokenQueryValues extends MapQueryValues {
+class OAuth2TokenQueryValues extends MapQueryValues {
   @override
   get casts {
     return {};
@@ -1294,7 +1294,7 @@ class OAuthTokenQueryValues extends MapQueryValues {
   }
 
   set userId(int value) => values['user_id'] = value;
-  void copyFrom(OAuthToken model) {
+  void copyFrom(OAuth2Token model) {
     createdAt = model.createdAt;
     updatedAt = model.updatedAt;
     if (model.application != null) {
@@ -1553,7 +1553,7 @@ class OAuth2Application extends _OAuth2Application {
       this.publicKey,
       this.salt,
       this.hashedSecretKey,
-      List<_OAuthScope> scopes})
+      List<_OAuth2Scope> scopes})
       : this.scopes = List.unmodifiable(scopes ?? []);
 
   /// A unique identifier corresponding to this item.
@@ -1581,7 +1581,7 @@ class OAuth2Application extends _OAuth2Application {
   String hashedSecretKey;
 
   @override
-  List<_OAuthScope> scopes;
+  List<_OAuth2Scope> scopes;
 
   OAuth2Application copyWith(
       {String id,
@@ -1591,7 +1591,7 @@ class OAuth2Application extends _OAuth2Application {
       String publicKey,
       String salt,
       String hashedSecretKey,
-      List<_OAuthScope> scopes}) {
+      List<_OAuth2Scope> scopes}) {
     return OAuth2Application(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
@@ -1612,7 +1612,7 @@ class OAuth2Application extends _OAuth2Application {
         other.publicKey == publicKey &&
         other.salt == salt &&
         other.hashedSecretKey == hashedSecretKey &&
-        ListEquality<_OAuthScope>(DefaultEquality<_OAuthScope>())
+        ListEquality<_OAuth2Scope>(DefaultEquality<_OAuth2Scope>())
             .equals(other.scopes, scopes);
   }
 
@@ -1641,8 +1641,8 @@ class OAuth2Application extends _OAuth2Application {
 }
 
 @generatedSerializable
-class OAuthScope extends _OAuthScope {
-  OAuthScope({this.id, this.createdAt, this.updatedAt, this.name});
+class OAuth2Scope extends _OAuth2Scope {
+  OAuth2Scope({this.id, this.createdAt, this.updatedAt, this.name});
 
   /// A unique identifier corresponding to this item.
   @override
@@ -1659,9 +1659,9 @@ class OAuthScope extends _OAuthScope {
   @override
   String name;
 
-  OAuthScope copyWith(
+  OAuth2Scope copyWith(
       {String id, DateTime createdAt, DateTime updatedAt, String name}) {
-    return OAuthScope(
+    return OAuth2Scope(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -1669,7 +1669,7 @@ class OAuthScope extends _OAuthScope {
   }
 
   bool operator ==(other) {
-    return other is _OAuthScope &&
+    return other is _OAuth2Scope &&
         other.id == id &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
@@ -1683,17 +1683,17 @@ class OAuthScope extends _OAuthScope {
 
   @override
   String toString() {
-    return "OAuthScope(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name)";
+    return "OAuth2Scope(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, name=$name)";
   }
 
   Map<String, dynamic> toJson() {
-    return OAuthScopeSerializer.toMap(this);
+    return OAuth2ScopeSerializer.toMap(this);
   }
 }
 
 @generatedSerializable
-class OAuthApplicationScope extends _OAuthApplicationScope {
-  OAuthApplicationScope(
+class OAuth2ApplicationScope extends _OAuth2ApplicationScope {
+  OAuth2ApplicationScope(
       {this.id,
       this.createdAt,
       this.updatedAt,
@@ -1716,15 +1716,15 @@ class OAuthApplicationScope extends _OAuthApplicationScope {
   int applicationId;
 
   @override
-  _OAuthScope scope;
+  _OAuth2Scope scope;
 
-  OAuthApplicationScope copyWith(
+  OAuth2ApplicationScope copyWith(
       {String id,
       DateTime createdAt,
       DateTime updatedAt,
       int applicationId,
-      _OAuthScope scope}) {
-    return OAuthApplicationScope(
+      _OAuth2Scope scope}) {
+    return OAuth2ApplicationScope(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -1733,7 +1733,7 @@ class OAuthApplicationScope extends _OAuthApplicationScope {
   }
 
   bool operator ==(other) {
-    return other is _OAuthApplicationScope &&
+    return other is _OAuth2ApplicationScope &&
         other.id == id &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
@@ -1748,17 +1748,17 @@ class OAuthApplicationScope extends _OAuthApplicationScope {
 
   @override
   String toString() {
-    return "OAuthApplicationScope(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, applicationId=$applicationId, scope=$scope)";
+    return "OAuth2ApplicationScope(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, applicationId=$applicationId, scope=$scope)";
   }
 
   Map<String, dynamic> toJson() {
-    return OAuthApplicationScopeSerializer.toMap(this);
+    return OAuth2ApplicationScopeSerializer.toMap(this);
   }
 }
 
 @generatedSerializable
-class OAuthToken extends _OAuthToken {
-  OAuthToken(
+class OAuth2Token extends _OAuth2Token {
+  OAuth2Token(
       {this.id, this.createdAt, this.updatedAt, this.application, this.user});
 
   /// A unique identifier corresponding to this item.
@@ -1779,13 +1779,13 @@ class OAuthToken extends _OAuthToken {
   @override
   _User user;
 
-  OAuthToken copyWith(
+  OAuth2Token copyWith(
       {String id,
       DateTime createdAt,
       DateTime updatedAt,
       _OAuth2Application application,
       _User user}) {
-    return OAuthToken(
+    return OAuth2Token(
         id: id ?? this.id,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -1794,7 +1794,7 @@ class OAuthToken extends _OAuthToken {
   }
 
   bool operator ==(other) {
-    return other is _OAuthToken &&
+    return other is _OAuth2Token &&
         other.id == id &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
@@ -1809,11 +1809,11 @@ class OAuthToken extends _OAuthToken {
 
   @override
   String toString() {
-    return "OAuthToken(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, application=$application, user=$user)";
+    return "OAuth2Token(id=$id, createdAt=$createdAt, updatedAt=$updatedAt, application=$application, user=$user)";
   }
 
   Map<String, dynamic> toJson() {
-    return OAuthTokenSerializer.toMap(this);
+    return OAuth2TokenSerializer.toMap(this);
   }
 }
 
@@ -2123,7 +2123,7 @@ class OAuth2ApplicationSerializer extends Codec<OAuth2Application, Map> {
         hashedSecretKey: map['hashed_secret_key'] as String,
         scopes: map['scopes'] is Iterable
             ? List.unmodifiable(((map['scopes'] as Iterable).whereType<Map>())
-                .map(OAuthScopeSerializer.fromMap))
+                .map(OAuth2ScopeSerializer.fromMap))
             : null);
   }
 
@@ -2138,7 +2138,7 @@ class OAuth2ApplicationSerializer extends Codec<OAuth2Application, Map> {
       'name': model.name,
       'public_key': model.publicKey,
       'scopes':
-          model.scopes?.map((m) => OAuthScopeSerializer.toMap(m))?.toList()
+          model.scopes?.map((m) => OAuth2ScopeSerializer.toMap(m))?.toList()
     };
   }
 }
@@ -2172,31 +2172,31 @@ abstract class OAuth2ApplicationFields {
   static const String scopes = 'scopes';
 }
 
-const OAuthScopeSerializer oAuthScopeSerializer = OAuthScopeSerializer();
+const OAuth2ScopeSerializer oAuth2ScopeSerializer = OAuth2ScopeSerializer();
 
-class OAuthScopeEncoder extends Converter<OAuthScope, Map> {
-  const OAuthScopeEncoder();
+class OAuth2ScopeEncoder extends Converter<OAuth2Scope, Map> {
+  const OAuth2ScopeEncoder();
 
   @override
-  Map convert(OAuthScope model) => OAuthScopeSerializer.toMap(model);
+  Map convert(OAuth2Scope model) => OAuth2ScopeSerializer.toMap(model);
 }
 
-class OAuthScopeDecoder extends Converter<Map, OAuthScope> {
-  const OAuthScopeDecoder();
+class OAuth2ScopeDecoder extends Converter<Map, OAuth2Scope> {
+  const OAuth2ScopeDecoder();
 
   @override
-  OAuthScope convert(Map map) => OAuthScopeSerializer.fromMap(map);
+  OAuth2Scope convert(Map map) => OAuth2ScopeSerializer.fromMap(map);
 }
 
-class OAuthScopeSerializer extends Codec<OAuthScope, Map> {
-  const OAuthScopeSerializer();
+class OAuth2ScopeSerializer extends Codec<OAuth2Scope, Map> {
+  const OAuth2ScopeSerializer();
 
   @override
-  get encoder => const OAuthScopeEncoder();
+  get encoder => const OAuth2ScopeEncoder();
   @override
-  get decoder => const OAuthScopeDecoder();
-  static OAuthScope fromMap(Map map) {
-    return OAuthScope(
+  get decoder => const OAuth2ScopeDecoder();
+  static OAuth2Scope fromMap(Map map) {
+    return OAuth2Scope(
         id: map['id'] as String,
         createdAt: map['created_at'] != null
             ? (map['created_at'] is DateTime
@@ -2211,7 +2211,7 @@ class OAuthScopeSerializer extends Codec<OAuthScope, Map> {
         name: map['name'] as String);
   }
 
-  static Map<String, dynamic> toMap(_OAuthScope model) {
+  static Map<String, dynamic> toMap(_OAuth2Scope model) {
     if (model == null) {
       return null;
     }
@@ -2224,7 +2224,7 @@ class OAuthScopeSerializer extends Codec<OAuthScope, Map> {
   }
 }
 
-abstract class OAuthScopeFields {
+abstract class OAuth2ScopeFields {
   static const List<String> allFields = <String>[
     id,
     createdAt,
@@ -2241,37 +2241,37 @@ abstract class OAuthScopeFields {
   static const String name = 'name';
 }
 
-const OAuthApplicationScopeSerializer oAuthApplicationScopeSerializer =
-    OAuthApplicationScopeSerializer();
+const OAuth2ApplicationScopeSerializer oAuth2ApplicationScopeSerializer =
+    OAuth2ApplicationScopeSerializer();
 
-class OAuthApplicationScopeEncoder
-    extends Converter<OAuthApplicationScope, Map> {
-  const OAuthApplicationScopeEncoder();
+class OAuth2ApplicationScopeEncoder
+    extends Converter<OAuth2ApplicationScope, Map> {
+  const OAuth2ApplicationScopeEncoder();
 
   @override
-  Map convert(OAuthApplicationScope model) =>
-      OAuthApplicationScopeSerializer.toMap(model);
+  Map convert(OAuth2ApplicationScope model) =>
+      OAuth2ApplicationScopeSerializer.toMap(model);
 }
 
-class OAuthApplicationScopeDecoder
-    extends Converter<Map, OAuthApplicationScope> {
-  const OAuthApplicationScopeDecoder();
+class OAuth2ApplicationScopeDecoder
+    extends Converter<Map, OAuth2ApplicationScope> {
+  const OAuth2ApplicationScopeDecoder();
 
   @override
-  OAuthApplicationScope convert(Map map) =>
-      OAuthApplicationScopeSerializer.fromMap(map);
+  OAuth2ApplicationScope convert(Map map) =>
+      OAuth2ApplicationScopeSerializer.fromMap(map);
 }
 
-class OAuthApplicationScopeSerializer
-    extends Codec<OAuthApplicationScope, Map> {
-  const OAuthApplicationScopeSerializer();
+class OAuth2ApplicationScopeSerializer
+    extends Codec<OAuth2ApplicationScope, Map> {
+  const OAuth2ApplicationScopeSerializer();
 
   @override
-  get encoder => const OAuthApplicationScopeEncoder();
+  get encoder => const OAuth2ApplicationScopeEncoder();
   @override
-  get decoder => const OAuthApplicationScopeDecoder();
-  static OAuthApplicationScope fromMap(Map map) {
-    return OAuthApplicationScope(
+  get decoder => const OAuth2ApplicationScopeDecoder();
+  static OAuth2ApplicationScope fromMap(Map map) {
+    return OAuth2ApplicationScope(
         id: map['id'] as String,
         createdAt: map['created_at'] != null
             ? (map['created_at'] is DateTime
@@ -2285,11 +2285,11 @@ class OAuthApplicationScopeSerializer
             : null,
         applicationId: map['application_id'] as int,
         scope: map['scope'] != null
-            ? OAuthScopeSerializer.fromMap(map['scope'] as Map)
+            ? OAuth2ScopeSerializer.fromMap(map['scope'] as Map)
             : null);
   }
 
-  static Map<String, dynamic> toMap(_OAuthApplicationScope model) {
+  static Map<String, dynamic> toMap(_OAuth2ApplicationScope model) {
     if (model == null) {
       return null;
     }
@@ -2298,12 +2298,12 @@ class OAuthApplicationScopeSerializer
       'created_at': model.createdAt?.toIso8601String(),
       'updated_at': model.updatedAt?.toIso8601String(),
       'application_id': model.applicationId,
-      'scope': OAuthScopeSerializer.toMap(model.scope)
+      'scope': OAuth2ScopeSerializer.toMap(model.scope)
     };
   }
 }
 
-abstract class OAuthApplicationScopeFields {
+abstract class OAuth2ApplicationScopeFields {
   static const List<String> allFields = <String>[
     id,
     createdAt,
@@ -2323,31 +2323,31 @@ abstract class OAuthApplicationScopeFields {
   static const String scope = 'scope';
 }
 
-const OAuthTokenSerializer oAuthTokenSerializer = OAuthTokenSerializer();
+const OAuth2TokenSerializer oAuth2TokenSerializer = OAuth2TokenSerializer();
 
-class OAuthTokenEncoder extends Converter<OAuthToken, Map> {
-  const OAuthTokenEncoder();
+class OAuth2TokenEncoder extends Converter<OAuth2Token, Map> {
+  const OAuth2TokenEncoder();
 
   @override
-  Map convert(OAuthToken model) => OAuthTokenSerializer.toMap(model);
+  Map convert(OAuth2Token model) => OAuth2TokenSerializer.toMap(model);
 }
 
-class OAuthTokenDecoder extends Converter<Map, OAuthToken> {
-  const OAuthTokenDecoder();
+class OAuth2TokenDecoder extends Converter<Map, OAuth2Token> {
+  const OAuth2TokenDecoder();
 
   @override
-  OAuthToken convert(Map map) => OAuthTokenSerializer.fromMap(map);
+  OAuth2Token convert(Map map) => OAuth2TokenSerializer.fromMap(map);
 }
 
-class OAuthTokenSerializer extends Codec<OAuthToken, Map> {
-  const OAuthTokenSerializer();
+class OAuth2TokenSerializer extends Codec<OAuth2Token, Map> {
+  const OAuth2TokenSerializer();
 
   @override
-  get encoder => const OAuthTokenEncoder();
+  get encoder => const OAuth2TokenEncoder();
   @override
-  get decoder => const OAuthTokenDecoder();
-  static OAuthToken fromMap(Map map) {
-    return OAuthToken(
+  get decoder => const OAuth2TokenDecoder();
+  static OAuth2Token fromMap(Map map) {
+    return OAuth2Token(
         id: map['id'] as String,
         createdAt: map['created_at'] != null
             ? (map['created_at'] is DateTime
@@ -2367,7 +2367,7 @@ class OAuthTokenSerializer extends Codec<OAuthToken, Map> {
             : null);
   }
 
-  static Map<String, dynamic> toMap(_OAuthToken model) {
+  static Map<String, dynamic> toMap(_OAuth2Token model) {
     if (model == null) {
       return null;
     }
@@ -2381,7 +2381,7 @@ class OAuthTokenSerializer extends Codec<OAuthToken, Map> {
   }
 }
 
-abstract class OAuthTokenFields {
+abstract class OAuth2TokenFields {
   static const List<String> allFields = <String>[
     id,
     createdAt,

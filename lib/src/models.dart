@@ -4,6 +4,17 @@ import 'package:angel_orm/angel_orm.dart';
 import 'package:angel_serialize/angel_serialize.dart';
 part 'models.g.dart';
 
+/// The basic migrations required for any Halo-based project.
+final List<Migration> haloMigrations = [
+  UserMigration(),
+  PermissionMigration(),
+  UserPermissionMigration(),
+  OAuth2ApplicationMigration(),
+  OAuth2ScopeMigration(),
+  OAuth2ApplicationScopeMigration(),
+  OAuth2TokenMigration(),
+];
+
 @serializable
 @orm
 class _User extends Model {
@@ -40,27 +51,27 @@ class _OAuth2Application extends Model {
   @Exclude(canDeserialize: true)
   String salt, hashedSecretKey;
 
-  @ManyToMany(_OAuthApplicationScope)
-  List<_OAuthScope> scopes;
+  @ManyToMany(_OAuth2ApplicationScope)
+  List<_OAuth2Scope> scopes;
 }
 
 @serializable
 @Orm(tableName: 'oauth2_scopes')
-class _OAuthScope extends Model {
+class _OAuth2Scope extends Model {
   String name;
 }
 
 @serializable
 @Orm(tableName: 'oauth2_application_scopes')
-class _OAuthApplicationScope extends Model {
+class _OAuth2ApplicationScope extends Model {
   int applicationId;
   @belongsTo
-  _OAuthScope scope;
+  _OAuth2Scope scope;
 }
 
 @serializable
 @Orm(tableName: 'oauth2_tokens')
-class _OAuthToken extends Model {
+class _OAuth2Token extends Model {
   @belongsTo
   _OAuth2Application application;
   @belongsTo
