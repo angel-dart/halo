@@ -10,6 +10,8 @@ dependencies:
   angel_model: ^1.0.0
   angel_oauth2: ^2.0.0
   angel_orm: ^2.1.0-beta
+  angel_security:
+    git: https://github.com/angel-dart/security.git
   angel_serialize: ^2.0.0
   dbcrypt: ^1.0.0
   pedantic: ^1.0.0
