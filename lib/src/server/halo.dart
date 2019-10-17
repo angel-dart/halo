@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:angel_framework/angel_framework.dart';
 import 'package:angel_orm/angel_orm.dart';
 import 'package:dbcrypt/dbcrypt.dart';
+import 'auth.dart';
 import 'authorization_server.dart';
 
 class Halo {
@@ -11,6 +12,7 @@ class Halo {
 
   Halo(this.executor, {this.oauth2Path = '/oauth2'});
 
+  HaloAuth _auth;
   HaloAuthorizationServer _authorizationServer;
 
   HaloAuthorizationServer get authorizationServer => _authorizationServer;
@@ -20,10 +22,13 @@ class Halo {
     _authorizationServer = HaloAuthorizationServer(executor, dbCrypt);
 
     // Routes...
-    app.group(oauth2Path, (router) {
-      router
-        ..get('/authorize', _authorizationServer.authorizationEndpoint)
-        ..post('/token', _authorizationServer.tokenEndpoint);
-    });
+    app
+      ..post('/login', _auth.postLoginForm)
+      ..post('/register', _auth.postRegisterForm)
+      ..group(oauth2Path, (router) {
+        router
+          ..get('/authorize', _authorizationServer.authorizationEndpoint)
+          ..post('/token', _authorizationServer.tokenEndpoint);
+      });
   }
 }

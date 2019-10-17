@@ -13,6 +13,7 @@ dependencies:
   angel_security:
     git: https://github.com/angel-dart/security.git
   angel_serialize: ^2.0.0
+  angel_validate: ^3.0.0-alpha
   dbcrypt: ^1.0.0
   pedantic: ^1.0.0
 dev_dependencies:
